@@ -15,6 +15,12 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
+dependencies = [
+    "openai-whisper>=20240930",
+    "setuptools-rust>=1.11.1",
+    "torch>=2.7.0",
+    "tqdm>=4.67.1",
+]
 
 [project.urls]
 Homepage = "https://picommcapp.github.io/whisper-subtitler/"
@@ -26,9 +32,7 @@ dev = [
     "pytest>=7.2.0",
     "pre-commit>=2.20.0",
     "tox-uv>=1.11.3",
-    "basedpyright"
-    "mypy>=0.991",
-    
+    "basedpyright",
     "ruff>=0.11.5",
     "mkdocs>=1.4.2",
     "mkdocs-material>=8.5.10",
