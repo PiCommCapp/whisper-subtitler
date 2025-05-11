@@ -20,6 +20,10 @@ dependencies = [
     "setuptools-rust>=1.11.1",
     "torch>=2.7.0",
     "tqdm>=4.67.1",
+    "pyannote.audio",
+    "torchvision",
+    "torchaudio",
+    "dotenv>=0.9.9",
 ]
 
 [project.urls]
