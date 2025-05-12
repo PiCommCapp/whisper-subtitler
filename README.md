@@ -6,64 +6,80 @@
 [![Commit activity](https://img.shields.io/github/commit-activity/m/picommcapp/whisper-subtitler)](https://img.shields.io/github/commit-activity/m/picommcapp/whisper-subtitler)
 [![License](https://img.shields.io/github/license/picommcapp/whisper-subtitler)](https://img.shields.io/github/license/picommcapp/whisper-subtitler)
 
-LLM subtitle generator
+Automatic subtitle generator with speaker identification using OpenAI's Whisper and Pyannote.
 
 - **Github repository**: <https://github.com/picommcapp/whisper-subtitler/>
 - **Documentation** <https://picommcapp.github.io/whisper-subtitler/>
 
-## Getting started with your project
+## Features
 
-### 1. Create a New Repository
+- Automatic transcription using OpenAI's Whisper
+- Speaker diarization (identification) using Pyannote.audio
+- Multiple output formats (TXT, SRT, VTT, TTML)
+- Configurable via .env file or command line
+- GPU acceleration support
 
-First, create a repository on GitHub with the same name as this project, and then run the following commands:
+## Installation
 
-```bash
-git init -b main
-git add .
-git commit -m "init commit"
-git remote add origin git@github.com:picommcapp/whisper-subtitler.git
-git push -u origin main
-```
+1. Clone the repository
+2. Install dependencies: `pip install -r requirements.txt`
+3. Create a `.env` file based on `.env.sample`
+4. Get a HuggingFace token from https://hf.co/settings/tokens
+5. Add the token to your `.env` file
 
-### 2. Set Up Your Development Environment
-
-Then, install the environment and the pre-commit hooks with
-
-```bash
-make install
-```
-
-This will also generate your `uv.lock` file
-
-### 3. Run the pre-commit hooks
-
-Initially, the CI/CD pipeline might be failing due to formatting issues. To resolve those run:
+## Quick Usage
 
 ```bash
-uv run pre-commit run -a
+# Basic usage - outputs to same directory as input
+python run.py transcribe path/to/video.mp4
+
+# Skip speaker identification
+python run.py transcribe path/to/video.mp4 --no-diarization
+
+# Specify output directory
+python run.py transcribe path/to/video.mp4 -o path/to/output
+
+# Use specific model size
+python run.py transcribe path/to/video.mp4 -m medium
 ```
 
-### 4. Commit the changes
+See [Usage Examples](docs/usage-examples.md) for more examples.
 
-Lastly, commit the changes made by the two steps above to your repository.
+## Configuration
+
+The application can be configured in three ways:
+
+1. **Command Line Arguments**: Direct options when running the command
+2. **Environment Variables**: Set in a `.env` file
+3. **Configuration File**: Advanced settings in a separate config file
+
+### Environment Variables
+
+Create a `.env` file in the project root with these options:
 
 ```bash
-git add .
-git commit -m 'Fix formatting issues'
-git push origin main
+# Required for speaker identification
+HUGGINGFACE_TOKEN=your_token_here
+
+# Whisper model configuration 
+WHISPER_MODEL_SIZE=medium   # tiny, base, small, medium, large
+WHISPER_LANGUAGE=en         # language code or empty for auto-detection
+
+# Speaker diarization settings
+SKIP_DIARIZATION=false      # set to true to disable speaker identification
+NUM_SPEAKERS=               # number of speakers if known
+
+# Output settings
+OUTPUT_FORMATS=txt,srt,vtt,ttml
 ```
 
-You are now ready to start development on your project!
-The CI/CD pipeline will be triggered when you open a pull request, merge to main, or when you create a new release.
+For more options, see the `.env.sample` file.
 
-To finalize the set-up for publishing to PyPI, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/publishing/#set-up-for-pypi).
-For activating the automatic documentation with MkDocs, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/mkdocs/#enabling-the-documentation-on-github).
-To enable the code coverage reports, see [here](https://fpgmaas.github.io/cookiecutter-uv/features/codecov/).
+## Development
 
-## Releasing a new version
+See [Development Guide](docs/development.md) for information on development workflow.
 
+### API Compatibility Notes
 
+- **Pyannote.audio**: The speaker diarization module includes compatibility fixes for newer versions of Pyannote.audio. If the standard speaker clustering fails (which may happen with certain API versions), an alternative clustering method is automatically applied as a fallback.
 
----
-
-Repository initiated with [fpgmaas/cookiecutter-uv](https://github.com/fpgmaas/cookiecutter-uv).

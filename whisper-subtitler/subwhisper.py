@@ -1,3 +1,9 @@
+"""
+DEPRECATED: This monolithic script has been refactored into a modular architecture.
+Please use the new implementation through main.py or run.py instead.
+This file is kept for reference only and will be removed in a future version.
+"""
+
 import logging
 import os
 import subprocess
@@ -31,7 +37,7 @@ TTML_LANGUAGE = os.getenv("TTML_LANGUAGE", "en-GB")
 
 # === CONFIGURATION ===
 SCRIPT_DIR = Path(__file__).resolve().parent
-INPUT_FILE = Path(os.getenv("INPUT_FILE", str(SCRIPT_DIR / "../.local/test.mp4")))
+INPUT_FILE = Path(os.getenv("INPUT_FILE", str(SCRIPT_DIR / "../.local/test1.mp4")))
 OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", str(SCRIPT_DIR / "../.local")))
 MODEL_SIZE = os.getenv("WHISPER_MODEL_SIZE", "medium")  # tiny, base, small, medium, large
 

@@ -1,0 +1,60 @@
+2025-05-12 12:34:38 [DEBUG] [whisper_subtitler] Logging initialized
+2025-05-12 12:34:38 [INFO] [whisper_subtitler] Processing .local/test1.mp4
+2025-05-12 12:34:38 [INFO] [whisper_subtitler] Using model: medium
+2025-05-12 12:34:38 [INFO] [whisper_subtitler] Speaker diarization is disabled
+2025-05-12 12:34:38 [DEBUG] [whisper_subtitler] Logging initialized
+2025-05-12 12:34:38 [INFO] [whisper_subtitler] Initializing application components
+2025-05-12 12:34:38 [DEBUG] [whisper_subtitler] All components initialized
+2025-05-12 12:34:38 [INFO] [whisper_subtitler] Processing .local/test1.mp4
+2025-05-12 12:34:38 [INFO] [whisper_subtitler] Output will be saved to: .local
+2025-05-12 12:34:38 [INFO] [whisper_subtitler.audio] Extracting audio to: /home/cappy/code/whisper-subtitler/.local/test1.wav
+2025-05-12 12:34:39 [INFO] [whisper_subtitler] Starting transcription
+2025-05-12 12:34:39 [INFO] [whisper_subtitler.transcribe] Loading Whisper model: medium
+2025-05-12 12:34:50 [DEBUG] [whisper_subtitler.transcribe] Enabling CUDA optimizations
+2025-05-12 12:34:50 [INFO] [whisper_subtitler.transcribe] Transcribing: /home/cappy/code/whisper-subtitler/.local/test1.wav
+2025-05-12 12:38:07 [INFO] [whisper_subtitler] Skipping speaker diarization as requested
+2025-05-12 12:38:07 [INFO] [whisper_subtitler] Generating output files
+2025-05-12 12:38:07 [INFO] [whisper_subtitler.output] Generating TXT file
+2025-05-12 12:38:07 [INFO] [whisper_subtitler.output] TXT saved to: .local/test1.txt
+2025-05-12 12:38:07 [INFO] [whisper_subtitler.output] Generating SRT file
+2025-05-12 12:38:07 [INFO] [whisper_subtitler.output] SRT saved to: .local/test1.srt
+2025-05-12 12:38:07 [INFO] [whisper_subtitler.output] Generating VTT file
+2025-05-12 12:38:07 [INFO] [whisper_subtitler.output] VTT saved to: .local/test1.vtt
+2025-05-12 12:38:07 [INFO] [whisper_subtitler.output] Generating TTML file
+2025-05-12 12:38:07 [INFO] [whisper_subtitler.output] TTML saved to: .local/test1.ttml
+2025-05-12 12:38:07 [INFO] [whisper_subtitler] Processing complete
+2025-05-12 12:58:52 [DEBUG] [whisper_subtitler] Logging initialized
+2025-05-12 12:58:52 [DEBUG] [whisper_subtitler] Logging initialized
+2025-05-12 12:58:52 [INFO] [whisper_subtitler] Initializing application components
+2025-05-12 12:58:52 [DEBUG] [whisper_subtitler] All components initialized
+2025-05-12 12:58:52 [INFO] [whisper_subtitler] Extracting audio to: .local/test1.wav
+2025-05-12 12:58:52 [INFO] [whisper_subtitler.audio] Extracting audio to: /home/cappy/code/whisper-subtitler/.local/test1.wav
+2025-05-12 12:58:53 [INFO] [whisper_subtitler] Starting transcription
+2025-05-12 12:58:53 [DEBUG] [whisper_subtitler] Using model size: medium
+2025-05-12 12:58:53 [INFO] [whisper_subtitler.transcribe] Loading Whisper model: medium
+2025-05-12 12:59:04 [DEBUG] [whisper_subtitler.transcribe] Enabling CUDA optimizations
+2025-05-12 12:59:04 [INFO] [whisper_subtitler.transcribe] Transcribing: .local/test1.wav
+2025-05-12 13:02:55 [INFO] [whisper_subtitler] Initializing speaker diarization pipeline
+2025-05-12 13:02:55 [ERROR] [whisper_subtitler] Processing failed: 'Diarizer' object has no attribute 'initialize'
+2025-05-12 13:03:45 [DEBUG] [whisper_subtitler] Logging initialized
+2025-05-12 13:03:45 [DEBUG] [whisper_subtitler] Logging initialized
+2025-05-12 13:03:45 [INFO] [whisper_subtitler] Initializing application components
+2025-05-12 13:03:45 [DEBUG] [whisper_subtitler] All components initialized
+2025-05-12 13:03:45 [INFO] [whisper_subtitler] Extracting audio to: .local/test1.wav
+2025-05-12 13:03:45 [INFO] [whisper_subtitler.audio] Extracting audio to: /home/cappy/code/whisper-subtitler/.local/test1.wav
+2025-05-12 13:03:46 [INFO] [whisper_subtitler] Starting transcription
+2025-05-12 13:03:46 [DEBUG] [whisper_subtitler] Using model size: medium
+2025-05-12 13:03:46 [INFO] [whisper_subtitler.transcribe] Loading Whisper model: medium
+2025-05-12 13:03:57 [DEBUG] [whisper_subtitler.transcribe] Enabling CUDA optimizations
+2025-05-12 13:03:57 [INFO] [whisper_subtitler.transcribe] Transcribing: .local/test1.wav
+2025-05-12 13:07:15 [INFO] [whisper_subtitler] Skipping speaker diarization as requested
+2025-05-12 13:07:15 [INFO] [whisper_subtitler] Generating output files
+2025-05-12 13:07:15 [INFO] [whisper_subtitler.output] Generating TXT file
+2025-05-12 13:07:15 [INFO] [whisper_subtitler.output] TXT saved to: .local/test1.txt
+2025-05-12 13:07:15 [INFO] [whisper_subtitler.output] Generating SRT file
+2025-05-12 13:07:15 [INFO] [whisper_subtitler.output] SRT saved to: .local/test1.srt
+2025-05-12 13:07:15 [INFO] [whisper_subtitler.output] Generating VTT file
+2025-05-12 13:07:15 [INFO] [whisper_subtitler.output] VTT saved to: .local/test1.vtt
+2025-05-12 13:07:15 [INFO] [whisper_subtitler.output] Generating TTML file
+2025-05-12 13:07:15 [INFO] [whisper_subtitler.output] TTML saved to: .local/test1.ttml
+2025-05-12 13:07:15 [INFO] [whisper_subtitler] Processing complete

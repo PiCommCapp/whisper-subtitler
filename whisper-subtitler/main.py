@@ -1,17 +1,10 @@
-def foo(bar: str) -> str:
-    """Summary line.
+"""
+Main entry point for the whisper-subtitler application.
 
-    Extended description of function.
+This module provides the entry point for the CLI.
+"""
 
-    Args:
-        bar: Description of input argument.
-
-    Returns:
-        Description of return value
-    """
-
-    return bar
-
+from modules.cli import main
 
 if __name__ == "__main__":  # pragma: no cover
-    pass
+    main()
