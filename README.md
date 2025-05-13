@@ -4,7 +4,7 @@
 [![Build status](https://img.shields.io/github/actions/workflow/status/picommcapp/whisper-subtitler/main.yml?branch=main)](https://github.com/picommcapp/whisper-subtitler/actions/workflows/main.yml?query=branch%3Amain)
 [![codecov](https://codecov.io/gh/picommcapp/whisper-subtitler/branch/main/graph/badge.svg)](https://codecov.io/gh/picommcapp/whisper-subtitler)
 [![Commit activity](https://img.shields.io/github/commit-activity/m/picommcapp/whisper-subtitler)](https://img.shields.io/github/commit-activity/m/picommcapp/whisper-subtitler)
-[![License](https://img.shields.io/github/license/picommcapp/whisper-subtitler)](https://img.shields.io/github/license/picommcapp/whisper-subtitler)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Automatic subtitle generator with speaker identification using OpenAI's Whisper and Pyannote.
 
