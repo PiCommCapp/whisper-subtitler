@@ -83,3 +83,7 @@ See [Development Guide](docs/development.md) for information on development work
 
 - **Pyannote.audio**: The speaker diarization module includes compatibility fixes for newer versions of Pyannote.audio. If the standard speaker clustering fails (which may happen with certain API versions), an alternative clustering method is automatically applied as a fallback.
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+

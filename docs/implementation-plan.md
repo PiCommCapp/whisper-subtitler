@@ -3,19 +3,23 @@
 ## Requirements Analysis
 
 ### Core Requirements
-- [ ] **Modularization**: Refactor existing monolithic script into a modular architecture
-- [ ] **Enhanced Logging**: Implement comprehensive logging with configurable levels and file output
-- [ ] **CLI Interface**: Develop powerful and user-friendly command-line interface
-- [ ] **Documentation**: Create comprehensive user and developer documentation
-- [ ] **Testing Framework**: Implement testing infrastructure for unit and integration tests
-- [ ] **Accuracy Improvements**: Enhance transcription and speaker diarization accuracy
+- [x] **Modularization**: Refactor existing monolithic script into a modular architecture
+- [x] **Enhanced Logging**: Implement comprehensive logging with configurable levels and file output
+- [x] **CLI Interface**: Develop powerful and user-friendly command-line interface
+- [x] **Documentation**: Create comprehensive user and developer documentation
+- [x] **Testing Framework**: Implement testing infrastructure for unit and integration tests
+- [x] **Accuracy Improvements**: Enhance transcription and speaker diarization accuracy
+- [ ] **Multi-Platform GPU Support**: Support for NVIDIA CUDA, AMD ROCm, and Apple Silicon
+- [ ] **Callable API**: Refactor into a callable utility for external Python scripts
 
 ### Technical Constraints
-- [ ] Maintain full CUDA support for GPU acceleration
-- [ ] Preserve existing output formats (TXT, SRT, VTT, TTML/IMSC1)
-- [ ] Keep current speaker identification functionality while improving it
-- [ ] Support loading of sensitive information from .env files
-- [ ] Ensure backward compatibility with existing usage patterns
+- [x] Maintain full CUDA support for GPU acceleration
+- [x] Preserve existing output formats (TXT, SRT, VTT, TTML/IMSC1)
+- [x] Keep current speaker identification functionality while improving it
+- [x] Support loading of sensitive information from .env files
+- [x] Ensure backward compatibility with existing usage patterns
+- [ ] Support multiple GPU platforms (NVIDIA, AMD, Apple)
+- [ ] Provide clean API for programmatic use
 
 ## Component Analysis
 
@@ -26,18 +30,21 @@
   - Extract Whisper model initialization and transcription logic
   - Implement configurable model size selection
   - Add support for language selection
+  - Add support for multiple GPU backends
 - **Dependencies**:
   - Whisper API
-  - CUDA/GPU acceleration
+  - PyTorch with multi-platform support
 
 #### Speaker Diarization Module
 - **Changes needed**:
   - Extract diarization functionality into dedicated module
   - Improve speaker identification accuracy
   - Add optional parameters for number of speakers
+  - Support multiple GPU backends
 - **Dependencies**:
   - Pyannote.audio
   - HuggingFace token management
+  - PyTorch with multi-platform support
 
 #### Output Formats Module
 - **Changes needed**:
@@ -53,140 +60,184 @@
   - Create unified configuration system
   - Support .env, CLI arguments, and defaults
   - Implement proper precedence order
+  - Add GPU backend selection
+  - Add optimization level configuration
 - **Dependencies**:
   - Environment variable handling
   - Command-line arguments
 
-#### Logging System
+#### Platform Support Module
 - **Changes needed**:
-  - Implement comprehensive logging
-  - Support different log levels for console and file
-  - Create log files in output directory
+  - Create platform detection utilities
+  - Implement platform-specific optimizations
+  - Support fallback mechanisms
+  - Handle platform-specific dependencies
 - **Dependencies**:
-  - Python logging module
-  - Output directory configuration
+  - PyTorch with CUDA/ROCm/MPS support
+  - Hardware detection capabilities
 
-#### CLI Interface
+#### API Module
 - **Changes needed**:
-  - Create intuitive command-line interface
-  - Implement all required options from project brief
-  - Add helpful error messages and documentation
+  - Create clean API interface
+  - Implement progress reporting
+  - Support all configuration options
+  - Provide structured return values
+  - Add comprehensive error handling
 - **Dependencies**:
-  - Typer or Click library
-  - Configuration module
+  - Application orchestrator
+  - Configuration system
 
 ## Design Decisions
 
 ### Architecture
-- [ ] **Module Organization**: Follow the proposed structure in project brief with modules/
-- [ ] **Configuration Management**: Implement layered configuration with precedence
-- [ ] **Entry Point**: Create executable CLI entry point (whisperer)
-- [ ] **Error Handling**: Implement comprehensive error handling across modules
-- [ ] **State Management**: Ensure proper state flow between components
+- [x] **Module Organization**: Follow the proposed structure in project brief with modules/
+- [x] **Configuration Management**: Implement layered configuration with precedence
+- [x] **Entry Point**: Create executable CLI entry point (whisperer)
+- [x] **Error Handling**: Implement comprehensive error handling across modules
+- [x] **State Management**: Ensure proper state flow between components
+- [ ] **Platform Support**: Implement platform utils for multi-GPU support
+- [ ] **API Design**: Create clean, importable API for external use
 
 ### Algorithms
-- [ ] **Speaker Identification**: Research improvements for speaker diarization accuracy
-- [ ] **Model Selection**: Evaluate Whisper model sizes for optimal performance/accuracy balance
-- [ ] **Audio Processing**: Consider preprocessing steps for improved transcription
-- [ ] **Output Generation**: Optimize subtitle generation algorithms
+- [x] **Speaker Identification**: Research improvements for speaker diarization accuracy
+- [x] **Model Selection**: Evaluate Whisper model sizes for optimal performance/accuracy balance
+- [x] **Audio Processing**: Consider preprocessing steps for improved transcription
+- [x] **Output Generation**: Optimize subtitle generation algorithms
+- [ ] **Platform Optimizations**: Implement tiered optimization system for different GPU platforms
+- [ ] **Progress Reporting**: Design callback mechanism for API progress updates
 
 ## Implementation Strategy
 
-### Phase 1: Core Refactoring
-1. [ ] Create basic package structure
-2. [ ] Extract configuration management
-3. [ ] Implement logging system
-4. [ ] Extract transcription module
-5. [ ] Extract diarization module
-6. [ ] Extract output formats module
-7. [ ] Create simple CLI interface
-8. [ ] Verify basic functionality
+### Phase 1: Core Refactoring (Completed)
+1. [x] Create basic package structure
+2. [x] Extract configuration management
+3. [x] Implement logging system
+4. [x] Extract transcription module
+5. [x] Extract diarization module
+6. [x] Extract output formats module
+7. [x] Create simple CLI interface
+8. [x] Verify basic functionality
 
-### Phase 2: Feature Enhancement
-1. [ ] Improve configuration management with precedence
-2. [ ] Enhance logging with file output
-3. [ ] Expand CLI with all required options
-4. [ ] Add support for multiple input files
-5. [ ] Implement packaging option
-6. [ ] Add force overwrite option
-7. [ ] Verify enhanced functionality
+### Phase 2: Feature Enhancement (Completed)
+1. [x] Improve configuration management with precedence
+2. [x] Enhance logging with file output
+3. [x] Expand CLI with all required options
+4. [x] Add support for multiple input files
+5. [x] Implement packaging option
+6. [x] Add force overwrite option
+7. [x] Verify enhanced functionality
 
-### Phase 3: Testing & Documentation
-1. [ ] Create unit tests for all modules
-2. [ ] Implement integration tests
-3. [ ] Create accuracy testing framework
-4. [ ] Write user documentation
-5. [ ] Write developer documentation
-6. [ ] Create README with installation and usage
+### Phase 3: Testing & Documentation (Completed)
+1. [x] Create unit tests for all modules
+2. [x] Implement integration tests
+3. [x] Create accuracy testing framework
+4. [x] Write user documentation
+5. [x] Write developer documentation
+6. [x] Create README with installation and usage
 
-### Phase 4: Accuracy Improvements
-1. [ ] Research and implement speaker diarization improvements
-2. [ ] Evaluate different Whisper model configurations
-3. [ ] Implement audio preprocessing if beneficial
-4. [ ] Test accuracy improvements
-5. [ ] Document performance metrics
+### Phase 4: Accuracy Improvements (Completed)
+1. [x] Research and implement speaker diarization improvements
+2. [x] Evaluate different Whisper model configurations
+3. [x] Implement audio preprocessing if beneficial
+4. [x] Test accuracy improvements
+5. [x] Document performance metrics
+
+### Phase 5: Multi-Platform GPU Support
+1. [ ] Create platform detection utilities
+   - [ ] Implement detection for NVIDIA CUDA
+   - [ ] Implement detection for AMD ROCm
+   - [ ] Implement detection for Apple Silicon MPS
+2. [ ] Update configuration system
+   - [ ] Add gpu_backend configuration option
+   - [ ] Maintain backward compatibility with use_cuda
+   - [ ] Add optimization level configuration
+3. [ ] Implement platform-specific optimizations
+   - [ ] Create tiered optimization system (safe, hardware-specific, benchmark-guided)
+   - [ ] Implement CUDA-specific optimizations
+   - [ ] Implement ROCm-specific optimizations
+   - [ ] Implement MPS-specific optimizations
+4. [ ] Update dependency management
+   - [ ] Create platform-specific dependency groups
+   - [ ] Update installation documentation
+
+### Phase 6: Callable API Implementation
+1. [ ] Design API interface
+   - [ ] Define function signatures and parameters
+   - [ ] Design return value structure
+   - [ ] Create progress reporting callback
+2. [ ] Implement API module
+   - [ ] Create api.py with main function
+   - [ ] Update __init__.py to expose the API
+3. [ ] Update Application class
+   - [ ] Add progress reporting
+   - [ ] Store results for API access
+   - [ ] Handle both CLI and API usage
+4. [ ] Create documentation and examples
+   - [ ] Write API reference documentation
+   - [ ] Create example scripts
+   - [ ] Update installation guide
 
 ## Testing Strategy
 
 ### Unit Tests
-- [ ] Tests for configuration loading
-- [ ] Tests for logging functionality
-- [ ] Tests for transcription module (mock Whisper)
-- [ ] Tests for diarization module (mock Pyannote)
-- [ ] Tests for output format generation
-- [ ] Tests for CLI argument parsing
+- [x] Tests for configuration loading
+- [x] Tests for logging functionality
+- [x] Tests for transcription module (mock Whisper)
+- [x] Tests for diarization module (mock Pyannote)
+- [x] Tests for output format generation
+- [x] Tests for CLI argument parsing
+- [ ] Tests for platform detection and optimization
+- [ ] Tests for API functionality
 
 ### Integration Tests
-- [ ] Test full pipeline with sample audio
-- [ ] Test various configuration combinations
-- [ ] Test error handling scenarios
-- [ ] Test performance with different model sizes
-- [ ] Test CUDA/CPU switching
+- [x] Test full pipeline with sample audio
+- [x] Test various configuration combinations
+- [x] Test error handling scenarios
+- [x] Test performance with different model sizes
+- [x] Test CUDA/CPU switching
+- [ ] Test on different GPU platforms (where available)
+- [ ] Test API with example scripts
 
-### Accuracy Testing
-- [ ] Create benchmark dataset with known transcriptions
-- [ ] Implement Word Error Rate (WER) calculations
-- [ ] Implement Diarization Error Rate (DER) calculations
-- [ ] Compare accuracy with different configurations
+### Platform Tests
+- [ ] Test NVIDIA CUDA support with different GPUs
+- [ ] Test AMD ROCm support where available
+- [ ] Test Apple Silicon MPS support on M-series Macs
+- [ ] Verify optimization levels across platforms
 
 ## Documentation Plan
 
 ### User Documentation
-- [ ] Installation guide (including CUDA setup)
-- [ ] CLI usage guide with examples
-- [ ] Configuration options documentation
-- [ ] Troubleshooting common issues
-- [ ] Best practices for optimal results
+- [x] Installation guide (including CUDA setup)
+- [x] CLI usage guide with examples
+- [x] Configuration options documentation
+- [x] Troubleshooting common issues
+- [x] Best practices for optimal results
+- [ ] Multi-platform GPU support guide
+- [ ] API usage documentation
 
 ### Developer Documentation
-- [ ] Code structure overview
-- [ ] Module API documentation
-- [ ] Configuration system explanation
-- [ ] How to extend/modify functionality
-- [ ] Contribution guidelines
+- [x] Code structure overview
+- [x] Module API documentation
+- [x] Configuration system explanation
+- [x] How to extend/modify functionality
+- [x] Contribution guidelines
+- [ ] Platform support implementation details
+- [ ] API design and usage guidelines
 
 ## Milestones and Timeline
 
-### Milestone 1: Core Refactoring (Week 1-2)
-- [ ] Complete basic package structure
-- [ ] Extract all core functionality into modules
-- [ ] Implement basic CLI interface
-- [ ] Verify functionality matches original script
+### Milestone 1-4: Core Implementation (Completed)
+- [x] Complete modular architecture
+- [x] Implement all core features
+- [x] Create comprehensive testing framework
+- [x] Document all functionality
+- [x] Implement accuracy improvements
 
-### Milestone 2: Feature Enhancement (Week 3-4)
-- [ ] Complete all enhanced features
-- [ ] Fully functional CLI with all options
-- [ ] Comprehensive logging system
-- [ ] Configuration management with precedence
+### Milestone 5: Multi-Platform GPU Support (2-3 weeks)
+- [ ] Week 1: Platform detection implementation
+- [ ] Week 2: Platform-specific optimizations
+- [ ] Week 3: Testing and documentation
 
-### Milestone 3: Testing & Documentation (Week 5-6)
-- [ ] Testing framework implementation
-- [ ] All unit and integration tests
-- [ ] User and developer documentation
-- [ ] README and installation guides
-
-### Milestone 4: Accuracy Improvements (Week 7-8)
-- [ ] Speaker diarization improvements
-- [ ] Transcription accuracy enhancements
-- [ ] Performance optimization
-- [ ] Final testing and documentation 
+### Milestone 6: Callable API Implementation (1-2 weeks)
+- [ ] Week 1: API design and implementation
+- [ ] Week 2: Testing, documentation, and examples 

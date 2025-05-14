@@ -67,6 +67,123 @@
 - Status: All Tasks Complete, Ready for Release
 - Blockers: None
 
+### GPU Support Expansion
+
+#### Requirements
+- [ ] Add support for AMD GPUs with ROCm
+- [ ] Add support for Apple M-series chips with Metal/MPS
+- [ ] Maintain backward compatibility with NVIDIA CUDA
+- [ ] Create automatic platform detection for optimal device selection
+- [ ] Implement platform-specific optimizations
+- [ ] Update dependency management for cross-platform support
+
+#### Components Affected
+- Core transcription engine
+- Speaker diarization system
+- Configuration management
+- Platform detection and optimization
+- Dependency management
+
+#### Implementation Steps
+1. [ ] **Platform Detection**: Create platform detection utilities
+   - [ ] Implement detection for NVIDIA CUDA
+   - [ ] Implement detection for AMD ROCm
+   - [ ] Implement detection for Apple Silicon MPS
+   - [ ] Create automatic optimal backend selection
+2. [ ] **Configuration Updates**: Enhance configuration for multi-platform support
+   - [ ] Add new gpu_backend option with multiple choices
+   - [ ] Maintain backward compatibility with use_cuda option
+   - [ ] Add platform-specific configuration parameters
+3. [ ] **GPU Backend Implementation**: Implement multi-platform support
+   - [ ] Update Transcriber to use different backends
+   - [ ] Update Diarizer to use different backends
+   - [ ] Implement platform-specific optimizations
+4. [ ] **Dependency Management**: Update project dependencies
+   - [ ] Create platform-specific dependency groups
+   - [ ] Update installation documentation
+   - [ ] Create platform detection during installation
+5. [ ] **Testing**: Test on multiple platforms
+   - [ ] Create test cases for different backends
+   - [ ] Implement cross-platform CI if possible
+   - [ ] Verify performance on each platform
+
+#### Creative Phases Required
+- [ ] 🏗️ Architecture Design: Multi-platform GPU support architecture
+  - Document: gpu-support-architecture.md
+- [ ] ⚙️ Algorithm Design: Platform-specific optimizations
+  - Document: platform-optimizations.md
+
+#### Checkpoints
+- [ ] Requirements verified
+- [ ] Architecture design completed
+- [ ] Platform detection implemented
+- [ ] Configuration updates implemented
+- [ ] Multiple GPU backends supported
+- [ ] Dependency management updated
+- [ ] Cross-platform testing completed
+- [ ] Documentation updated
+
+#### Current Status
+- Phase: Design
+- Status: Architecture Planning
+- Blockers: None
+
+### Callable Utility Refactoring
+
+#### Requirements
+- [ ] Create a clean, importable API for external Python scripts
+- [ ] Implement `whisper_subtitler()` function as main entry point
+- [ ] Maintain all existing functionality
+- [ ] Provide proper error handling and reporting
+- [ ] Create comprehensive documentation and examples
+- [ ] Support progress reporting via callbacks
+
+#### Components Affected
+- Package structure
+- API design
+- Application orchestration
+- Error handling
+- Documentation
+
+#### Implementation Steps
+1. [ ] **API Design**: Design clean public API
+   - [ ] Define function signature with all necessary parameters
+   - [ ] Design return value structure
+   - [ ] Create progress reporting callback mechanism
+2. [ ] **Implementation**: Implement the API
+   - [ ] Create api.py module with main function
+   - [ ] Update __init__.py to expose the API
+   - [ ] Ensure Application class supports both CLI and API usage
+3. [ ] **Error Handling**: Implement proper error handling
+   - [ ] Create appropriate exception classes
+   - [ ] Implement contextual error reporting
+   - [ ] Handle resource cleanup in error cases
+4. [ ] **Documentation**: Document the API
+   - [ ] Create API reference documentation
+   - [ ] Write usage examples
+   - [ ] Update installation guide
+5. [ ] **Testing**: Create tests for the API
+   - [ ] Unit tests for the API function
+   - [ ] Integration tests with example scripts
+   - [ ] Test error handling scenarios
+
+#### Creative Phases Required
+- [ ] 🏗️ Architecture Design: API design for callable utility
+  - Document: api-design.md
+
+#### Checkpoints
+- [ ] Requirements verified
+- [ ] API design completed
+- [ ] Implementation completed
+- [ ] Error handling implemented
+- [ ] Documentation created
+- [ ] Testing completed
+
+#### Current Status
+- Phase: Design
+- Status: Architecture Planning
+- Blockers: None
+
 ## 🔄 In Progress
 
 - None
@@ -88,9 +205,9 @@
 
 ## 📊 Project Status
 
-- **Current Phase**: Release
+- **Current Phase**: Development
 - **Complexity Level**: Level 3 (Intermediate Feature)
-- **Next Phase**: Deployment/Maintenance
+- **Next Phase**: Implementation/Testing
 
 #### Accuracy Improvements
 
