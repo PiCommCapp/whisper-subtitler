@@ -10,7 +10,7 @@ Automatic subtitle generation with speaker identification from audio or video.
 
 ## Documentation
 
-- [Installation](installation.md) — just, uv, FFmpeg, HuggingFace token
+- [Installation](installation.md) — binaries or just/uv/FFmpeg, HuggingFace token
 - [Usage](usage.md) — CLI examples, formats, environment variables
 - [FAQ](faq.md) — common issues and troubleshooting
 - [Development](development.md) — Just/uv workflow and package layout

@@ -13,6 +13,8 @@ from typing import Any
 
 from dotenv import load_dotenv
 
+from .runtime import load_default_dotenv
+
 logger = logging.getLogger(__name__)
 
 # Default temperature fallback sequence (enables compression-ratio / log-prob retries)
@@ -132,8 +134,7 @@ class Config:
                 load_dotenv(env_file, override=True)
                 logger.debug(f"Loaded configuration from {env_file}")
         else:
-            # Load from default .env file
-            load_dotenv()
+            load_default_dotenv()
             logger.debug("Loaded configuration from default .env file")
 
         # Transcription settings

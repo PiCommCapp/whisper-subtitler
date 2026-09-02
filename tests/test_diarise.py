@@ -36,7 +36,10 @@ class TestDiarizer:
         assert diarizer.huggingface_token == mock_config.huggingface_token
         assert diarizer.device == "cpu"
 
-    @patch("whisper_subtitler.modules.diarisation.diarizer.pipeline_auth_kwargs", return_value={"use_auth_token": "mock-token"})
+    @patch(
+        "whisper_subtitler.modules.diarisation.diarizer.pipeline_auth_kwargs",
+        return_value={"use_auth_token": "mock-token"},
+    )
     @patch("whisper_subtitler.modules.diarisation.diarizer.Pipeline.from_pretrained")
     def test_initialize_pipeline_uses_3_1_and_token(self, mock_from_pretrained, mock_auth_kwargs, mock_config):
         mock_pipeline = MagicMock()

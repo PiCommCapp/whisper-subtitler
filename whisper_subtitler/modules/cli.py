@@ -10,9 +10,7 @@ import logging
 import sys
 from pathlib import Path
 
-from .application import Application
-from .config import Config
-from .logger import setup_logging
+from .runtime import is_frozen
 
 # Set up a module-level logger that will be initialized properly later
 logger = logging.getLogger(__name__)
@@ -43,6 +41,9 @@ def _run_gui() -> int:
 def main():
     """Entry point for the CLI."""
     global logger  # Use global logger in this function
+
+    if is_frozen() and len(sys.argv) == 1:
+        sys.argv.append("gui")
 
     parser = argparse.ArgumentParser(
         description="Transcribe and diarize audio or video with faster-whisper and Pyannote"
@@ -192,6 +193,10 @@ def main():
 
     # Handle transcribe command
     if args.command == "transcribe":
+        from .application import Application
+        from .config import Config
+        from .logger import setup_logging
+
         try:
             # Build the configuration
             config = Config()

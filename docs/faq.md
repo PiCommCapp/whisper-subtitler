@@ -9,7 +9,21 @@ Diarization needs a HuggingFace token and acceptance of the [pyannote/speaker-di
 
 ## FFmpeg not found
 
-Audio and video inputs are converted with FFmpeg (for example MP3 → WAV). Run `just install-ffmpeg`, or install FFmpeg yourself and ensure `ffmpeg` is on your `PATH`.
+Audio and video inputs are converted with FFmpeg (for example MP3 → WAV). Run `just install-ffmpeg`, or install FFmpeg yourself and ensure `ffmpeg` is on your `PATH`. Standalone zips do not include FFmpeg; it is the only host package they need.
+
+## Unsigned app / SmartScreen / Gatekeeper
+
+Release binaries are not signed or notarized. Windows SmartScreen and macOS Gatekeeper may warn. Prefer the GitHub Release asset from this repo, then run from a terminal if the OS blocks a double-click.
+
+On Windows a console window stays open behind the GUI; do not close it while a job is running.
+
+## First transcription is slow / needs network
+
+Standalone zips do not ship Whisper or pyannote weights (they are large). The first `transcribe` downloads them into the HuggingFace cache. Launching the GUI or `version` does not need the network.
+
+## Frozen builds and CUDA
+
+Windows and Linux zips are CPU-only so they do not require NVIDIA libraries. Use the source install (`just sync`) if you need CUDA. macOS binaries may use MPS.
 
 ## Does MP3 (or other audio) work?
 

@@ -26,6 +26,7 @@ whisper_subtitler/
     cli.py
     config.py
     gui/          # optional extra: pyside6
+    runtime.py    # frozen exe helpers
     audio/
     diarisation/
     output/
@@ -33,6 +34,7 @@ whisper_subtitler/
 tests/
 docs/
 Justfile
+packaging/        # PyInstaller spec + freeze script
 pyproject.toml
 ```
 
@@ -60,6 +62,7 @@ whisper-subtitler = whisper_subtitler.modules.cli:main
 | `just check` | lint + typecheck + tests |
 | `just run *args` | `uv run whisper-subtitler …` |
 | `just gui` | Open the desktop GUI |
+| `just dist` | Freeze onedir zip (`--extra gui --extra packaging`; CPU torch on Linux/Windows). Re-run `just sync` afterwards if you need CUDA wheels in the venv. |
 | `just docs` | `mkdocs build -s` |
 | `just clean` | Remove caches, build artifacts, and `.venv` |
 

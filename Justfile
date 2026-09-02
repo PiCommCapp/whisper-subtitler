@@ -140,6 +140,14 @@ sync:
 sync-gui:
     uv sync --all-groups --extra gui
 
+# Freeze a standalone onedir zip for this OS/arch (Linux/Windows swap in CPU torch)
+dist:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    export PYTHONUNBUFFERED=1
+    uv sync --all-groups --extra gui --extra packaging
+    uv run --extra gui --extra packaging python packaging/build.py
+
 lock:
     uv lock
 

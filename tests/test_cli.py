@@ -11,9 +11,9 @@ import pytest
 class TestCLI:
     """Test the real argparse CLI."""
 
-    @patch("whisper_subtitler.modules.cli.setup_logging")
-    @patch("whisper_subtitler.modules.cli.Application")
-    @patch("whisper_subtitler.modules.cli.Config")
+    @patch("whisper_subtitler.modules.logger.setup_logging")
+    @patch("whisper_subtitler.modules.application.Application")
+    @patch("whisper_subtitler.modules.config.Config")
     def test_transcribe_passes_faster_whisper_args(
         self, mock_config_class, mock_app_class, mock_setup_logging, monkeypatch
     ):
@@ -63,9 +63,9 @@ class TestCLI:
         mock_setup_logging.assert_called_once_with(mock_config)
         mock_app.process.assert_called_once_with()
 
-    @patch("whisper_subtitler.modules.cli.setup_logging")
-    @patch("whisper_subtitler.modules.cli.Application")
-    @patch("whisper_subtitler.modules.cli.Config")
+    @patch("whisper_subtitler.modules.logger.setup_logging")
+    @patch("whisper_subtitler.modules.application.Application")
+    @patch("whisper_subtitler.modules.config.Config")
     def test_transcribe_sets_json_format(self, mock_config_class, mock_app_class, mock_setup_logging, monkeypatch):
         """Test -f json overrides config.output_formats."""
         from whisper_subtitler.modules.cli import main
@@ -102,9 +102,9 @@ class TestCLI:
         assert main() == 0
         assert mock_config.output_formats == ["json"]
 
-    @patch("whisper_subtitler.modules.cli.setup_logging")
-    @patch("whisper_subtitler.modules.cli.Application")
-    @patch("whisper_subtitler.modules.cli.Config")
+    @patch("whisper_subtitler.modules.logger.setup_logging")
+    @patch("whisper_subtitler.modules.application.Application")
+    @patch("whisper_subtitler.modules.config.Config")
     def test_transcribe_all_formats_includes_json(
         self, mock_config_class, mock_app_class, mock_setup_logging, monkeypatch
     ):
@@ -143,9 +143,9 @@ class TestCLI:
         assert main() == 0
         assert mock_config.output_formats == ALL_OUTPUT_FORMATS
 
-    @patch("whisper_subtitler.modules.cli.setup_logging")
-    @patch("whisper_subtitler.modules.cli.Application")
-    @patch("whisper_subtitler.modules.cli.Config")
+    @patch("whisper_subtitler.modules.logger.setup_logging")
+    @patch("whisper_subtitler.modules.application.Application")
+    @patch("whisper_subtitler.modules.config.Config")
     def test_transcribe_directory_defaults_output_to_input_dir(
         self, mock_config_class, mock_app_class, mock_setup_logging, monkeypatch, tmp_path
     ):
@@ -186,9 +186,9 @@ class TestCLI:
         cli_args = mock_config.load_from_args.call_args[0][0]
         assert cli_args["output_dir"] == str(media_dir)
 
-    @patch("whisper_subtitler.modules.cli.setup_logging")
-    @patch("whisper_subtitler.modules.cli.Application")
-    @patch("whisper_subtitler.modules.cli.Config")
+    @patch("whisper_subtitler.modules.logger.setup_logging")
+    @patch("whisper_subtitler.modules.application.Application")
+    @patch("whisper_subtitler.modules.config.Config")
     def test_transcribe_exits_nonzero_on_batch_failures(
         self, mock_config_class, mock_app_class, mock_setup_logging, monkeypatch
     ):
@@ -262,3 +262,26 @@ class TestCLI:
             assert main() == 1
         err = capsys.readouterr().err
         assert "uv sync --extra gui" in err
+
+    def test_version_prints_package_version(self, monkeypatch, capsys):
+        from whisper_subtitler.modules.cli import main
+        from whisper_subtitler.version import VERSION
+
+        monkeypatch.setattr(sys, "argv", ["whisper-subtitler", "version"])
+        assert main() == 0
+        assert f"whisper-subtitler version {VERSION}" in capsys.readouterr().out
+        from whisper_subtitler.modules.cli import main
+
+        monkeypatch.setattr(sys, "argv", ["whisper-subtitler"])
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+        assert exc_info.value.code == 2
+
+    def test_frozen_no_args_opens_gui(self, monkeypatch):
+        from whisper_subtitler.modules.cli import main
+
+        monkeypatch.setattr("whisper_subtitler.modules.cli.is_frozen", lambda: True)
+        monkeypatch.setattr(sys, "argv", ["whisper-subtitler"])
+        with patch("whisper_subtitler.modules.cli._load_gui_run", return_value=lambda: 0) as load:
+            assert main() == 0
+            load.assert_called_once()

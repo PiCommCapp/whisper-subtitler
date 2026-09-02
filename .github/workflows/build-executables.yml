@@ -1,0 +1,91 @@
+name: Build executables
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      include: ${{ steps.set.outputs.include }}
+    steps:
+      - id: set
+        env:
+          ENABLE_MACOS_INTEL: ${{ vars.ENABLE_MACOS_INTEL }}
+        run: |
+          python3 << 'PY'
+          import json
+          import os
+
+          rows = [
+              {"os": "windows-latest", "artifact": "windows-x86_64"},
+              {"os": "macos-15", "artifact": "macos-arm64"},
+              {"os": "ubuntu-22.04", "artifact": "linux-x86_64"},
+          ]
+          if os.environ.get("ENABLE_MACOS_INTEL", "").lower() == "true":
+              rows.append({"os": "macos-15-intel", "artifact": "macos-x86_64"})
+          include = json.dumps(rows)
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"include={include}\n")
+          PY
+
+  freeze:
+    needs: matrix
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.matrix.outputs.include) }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          python-version: "3.12"
+
+      - name: Install just
+        uses: extractions/setup-just@v3
+
+      - name: Sync freeze dependencies
+        run: uv sync --frozen --all-groups --extra gui --extra packaging
+
+      - name: Freeze and zip
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: uv run --extra gui --extra packaging python packaging/build.py
+
+      - name: Upload zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: whisper-subtitler-${{ matrix.artifact }}
+          path: dist/whisper-subtitler-*.zip
+          if-no-files-found: error
+
+  publish:
+    if: github.event_name == 'release'
+    needs: freeze
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download zips
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Attach zips to the GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.event.release.tag_name }}" artifacts/*.zip --clobber

@@ -10,7 +10,20 @@ JSON is the default output. TXT, SRT, VTT, and TTML are available on request. CP
 
 **Documentation:** <https://picommcapp.github.io/whisper-subtitler/>
 
-## Install
+## Download
+
+Standalone zips (no Python) are attached to [GitHub Releases](https://github.com/picommcapp/whisper-subtitler/releases). Unzip, install [FFmpeg](https://ffmpeg.org/) so `ffmpeg` is on `PATH`, then run `whisper-subtitler` (Windows: `whisper-subtitler.exe`). Double-click or run with no arguments to open the GUI.
+
+| Zip | Platform |
+|-----|----------|
+| `whisper-subtitler-*-windows-x86_64.zip` | Windows |
+| `whisper-subtitler-*-macos-arm64.zip` | macOS Apple Silicon |
+| `whisper-subtitler-*-macos-x86_64.zip` | macOS Intel (when CI larger runners are enabled) |
+| `whisper-subtitler-*-linux-x86_64.zip` | Linux |
+
+Frozen builds are CPU-only on Windows and Linux. The first transcription downloads model weights. See [Installation](docs/installation.md).
+
+## Install from source
 
 You need [just](https://github.com/casey/just). Clone the repo, then:
 
@@ -99,6 +112,7 @@ just docs
 | `just check` | lint + typecheck + tests |
 | `just run *args` | `uv run whisper-subtitler …` |
 | `just gui` | Open the desktop GUI |
+| `just dist` | Freeze a standalone zip for this OS/arch |
 
 See [Development](docs/development.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 

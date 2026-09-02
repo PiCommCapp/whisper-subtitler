@@ -49,6 +49,9 @@ whisper-subtitler = "whisper_subtitler.modules.cli:main"
 gui = [
     "pyside6>=6.11.2",
 ]
+packaging = [
+    "pyinstaller>=6",
+]
 
 [dependency-groups]
 dev = [
@@ -93,6 +96,7 @@ testpaths = ["tests"]
 target-version = "py311"
 line-length = 120
 fix = true
+extend-exclude = ["packaging/whisper-subtitler.spec"]
 
 [tool.ruff.lint]
 select = [
@@ -150,6 +154,7 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["B007", "B008", "E722", "F841", "S101", "S105", "S106", "S314", "TRY003"]
 "tests/test_gui.py" = ["E402"]
+"packaging/build.py" = ["S404"]
 
 [tool.ruff.format]
 preview = true

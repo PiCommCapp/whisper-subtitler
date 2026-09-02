@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from ..logger import get_logger
+from ..runtime import FFMPEG_MISSING_MESSAGE
 
 
 class AudioExtractor:
@@ -95,6 +96,9 @@ class AudioExtractor:
 
             return output_path
 
+        except FileNotFoundError as e:
+            self.logger.error(FFMPEG_MISSING_MESSAGE)
+            raise RuntimeError(FFMPEG_MISSING_MESSAGE) from e
         except subprocess.CalledProcessError as e:
             error_message = e.stderr if hasattr(e, "stderr") else str(e)
             self.logger.error(f"Failed to prepare audio: {error_message}")

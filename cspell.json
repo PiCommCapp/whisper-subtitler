@@ -1,6 +1,8 @@
 {
     "version": "0.2",
-    "ignorePaths": [],
+    "ignorePaths": [
+        "pyproject.toml"
+    ],
     "dictionaryDefinitions": [],
     "dictionaries": [],
     "words": [
@@ -11,7 +13,9 @@
         "mkdocs",
         "mypy",
         "noconfirm",
+        "onedir",
         "pacman",
+        "pyinstaller",
         "pycache",
         "pytest",
         "subtitler",

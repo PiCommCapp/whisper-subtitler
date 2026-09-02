@@ -5,6 +5,8 @@ Tests for audio extraction / media preparation.
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from whisper_subtitler.modules.audio.extractor import AudioExtractor
 
 
@@ -54,3 +56,13 @@ class TestAudioExtractor:
         assert ffmpeg_out.name == "meeting.converted.wav"
         assert wav_path.read_bytes() == b"converted"
         assert not ffmpeg_out.exists()
+
+    @patch("whisper_subtitler.modules.audio.extractor.subprocess.run")
+    def test_missing_ffmpeg_raises_runtimeerror(self, mock_run, mock_config, temp_output_dir):
+        mock_run.side_effect = FileNotFoundError(2, "No such file or directory", "ffmpeg")
+        input_mp3 = temp_output_dir / "talk.mp3"
+        input_mp3.touch()
+
+        extractor = AudioExtractor(mock_config)
+        with pytest.raises(RuntimeError, match="FFmpeg was not found on PATH"):
+            extractor.extract_audio(str(input_mp3), str(temp_output_dir / "talk.wav"))

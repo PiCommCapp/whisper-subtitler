@@ -29,6 +29,8 @@ just sync-gui       # once: add PySide6 to the venv
 just gui            # run
 ```
 
+Standalone Release zips already include the GUI: run `whisper-subtitler` with no arguments, or `whisper-subtitler gui`.
+
 Leave the HuggingFace token field empty to skip diarization. The Options grid lists every `.env.sample` key for the current run only; it does not write `.env`. During transcription the progress bar shows audio time (`Transcription 12:34 / 45:00`) and a one-second elapsed clock so long jobs look alive.
 
 ## Progress feedback

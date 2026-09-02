@@ -387,6 +387,15 @@ class TestRealConfig:
 
         assert config.hallucination_silence_threshold is None
 
+    def test_default_env_load_uses_runtime_helper(self, monkeypatch):
+        called = []
+        monkeypatch.setattr(
+            "whisper_subtitler.modules.config.load_default_dotenv",
+            lambda: called.append(True),
+        )
+        Config().load_from_env()
+        assert called == [True]
+
     def test_file_loads_temperature_list(self, tmp_path):
         config_file = tmp_path / "settings.conf"
         config_file.write_text("temperature = 0.0,0.2,0.4\ncondition_on_previous_text = false\n")
