@@ -10,7 +10,7 @@ Automatic subtitle generation with speaker identification from audio or video.
 
 ## Documentation
 
-- [Installation](installation.md) — Python, FFmpeg, uv, HuggingFace token
+- [Installation](installation.md) — just, uv, FFmpeg, HuggingFace token
 - [Usage](usage.md) — CLI examples, formats, environment variables
 - [FAQ](faq.md) — common issues and troubleshooting
 - [Development](development.md) — Just/uv workflow and package layout
@@ -19,16 +19,12 @@ Automatic subtitle generation with speaker identification from audio or video.
 ## Quick start
 
 ```bash
-# Install
-uv sync --all-groups
+just install
 cp .env.sample .env
 # Edit .env: set HUGGINGFACE_TOKEN and accept the 3.1 model terms
 
-# Transcribe (writes JSON by default)
 uv run whisper-subtitler transcribe path/to/video.mp4
 uv run whisper-subtitler transcribe path/to/talk.mp3
-
-# Or via Just
 just run transcribe path/to/video.mp4
 ```
 

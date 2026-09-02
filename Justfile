@@ -1,7 +1,134 @@
 set shell := ["bash", "-uc"]
 
+# Fresh uv installs land in ~/.local/bin (or ~/.cargo/bin on older installers).
+export PATH := env("HOME") + "/.local/bin:" + env("HOME") + "/.cargo/bin:" + env("PATH")
+
 help:
     @just --list
+
+# Install uv if it is not already on PATH
+install-uv:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if command -v uv >/dev/null 2>&1; then
+        echo "uv already installed: $(uv --version)"
+        exit 0
+    fi
+    echo "Installing uv…"
+    if command -v curl >/dev/null 2>&1; then
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+    elif command -v wget >/dev/null 2>&1; then
+        wget -qO- https://astral.sh/uv/install.sh | sh
+    else
+        echo "error: need curl or wget to install uv" >&2
+        exit 1
+    fi
+    if ! command -v uv >/dev/null 2>&1; then
+        echo "error: uv installed but not on PATH; add ~/.local/bin to PATH and retry" >&2
+        exit 1
+    fi
+    echo "uv installed: $(uv --version)"
+
+# Install FFmpeg if it is not already on PATH
+install-ffmpeg:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if command -v ffmpeg >/dev/null 2>&1; then
+        echo "ffmpeg already installed: $(ffmpeg -version | head -n 1)"
+        exit 0
+    fi
+    echo "Installing FFmpeg…"
+    _root() {
+        if [[ "$(id -u)" -eq 0 ]]; then
+            "$@"
+        elif command -v sudo >/dev/null 2>&1; then
+            sudo "$@"
+        else
+            echo "error: installing FFmpeg via the system package manager requires root or sudo" >&2
+            exit 1
+        fi
+    }
+    os="$(uname -s)"
+    case "${os}" in
+        Darwin)
+            if ! command -v brew >/dev/null 2>&1; then
+                echo "error: Homebrew is required to install FFmpeg on macOS" >&2
+                exit 1
+            fi
+            brew install ffmpeg
+            ;;
+        Linux)
+            if command -v apt-get >/dev/null 2>&1; then
+                _root apt-get update -y
+                _root apt-get install -y ffmpeg
+            elif command -v dnf >/dev/null 2>&1; then
+                _root dnf install -y ffmpeg
+            elif command -v yum >/dev/null 2>&1; then
+                _root yum install -y ffmpeg
+            elif command -v pacman >/dev/null 2>&1; then
+                _root pacman -Sy --noconfirm ffmpeg
+            elif command -v apk >/dev/null 2>&1; then
+                _root apk add --no-cache ffmpeg
+            elif command -v zypper >/dev/null 2>&1; then
+                _root zypper install -y ffmpeg
+            elif command -v brew >/dev/null 2>&1; then
+                brew install ffmpeg
+            else
+                echo "error: no supported package manager found (apt, dnf, yum, pacman, apk, zypper, brew)" >&2
+                exit 1
+            fi
+            ;;
+        MINGW*|MSYS*|CYGWIN*)
+            if command -v winget >/dev/null 2>&1; then
+                winget install --id Gyan.FFmpeg -e --accept-source-agreements --accept-package-agreements
+            elif command -v choco >/dev/null 2>&1; then
+                choco install ffmpeg -y
+            elif command -v scoop >/dev/null 2>&1; then
+                scoop install ffmpeg
+            else
+                echo "error: install FFmpeg with winget, chocolatey, or scoop, or add ffmpeg to PATH" >&2
+                exit 1
+            fi
+            ;;
+        *)
+            echo "error: unsupported OS '${os}'; install FFmpeg manually and add it to PATH" >&2
+            exit 1
+            ;;
+    esac
+    if ! command -v ffmpeg >/dev/null 2>&1; then
+        echo "error: FFmpeg installed but not on PATH" >&2
+        exit 1
+    fi
+    echo "ffmpeg installed: $(ffmpeg -version | head -n 1)"
+
+# Remove caches, build artifacts, coverage output, and the project virtualenv
+clean:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    shopt -s globstar nullglob
+    rm -rf \
+        .venv \
+        .tox \
+        .nox \
+        .pytest_cache \
+        .ruff_cache \
+        .mypy_cache \
+        .pyright \
+        .basedpyright \
+        .coverage \
+        htmlcov \
+        dist \
+        build \
+        site \
+        pytest-cache-files-* \
+        coverage.xml \
+        .coverage.* \
+        *.egg-info \
+        **/*.egg-info \
+        **/__pycache__
+
+# Clean, install uv + FFmpeg, then sync project dependencies
+install: clean install-uv install-ffmpeg sync
 
 sync:
     uv sync --all-groups
@@ -30,7 +157,3 @@ run *args:
 
 docs:
     uv run mkdocs build -s
-
-clean:
-    rm -rf .pytest_cache .ruff_cache .mypy_cache .pyright dist build *.egg-info pytest-cache-files-*
-    shopt -s globstar nullglob; rm -rf **/__pycache__

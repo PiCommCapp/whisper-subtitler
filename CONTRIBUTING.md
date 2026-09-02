@@ -46,8 +46,8 @@ If you are proposing a new feature:
 # Get Started!
 
 Ready to contribute? Here's how to set up `whisper-subtitler` for local development.
-Please note this documentation assumes you already have `uv`, `just`, and `Git` installed and ready to go.
-You also need **Python ≥ 3.11** and **FFmpeg** on your `PATH` for runtime tests that extract audio.
+Please note this documentation assumes you have `just` and `Git` installed.
+`just install` will install uv and FFmpeg if they are missing, and uv will fetch Python 3.11 or 3.12 if needed.
 
 1. Fork the `whisper-subtitler` repo on GitHub.
 
@@ -67,7 +67,7 @@ cd whisper-subtitler
 Then, install and activate the environment with:
 
 ```bash
-just sync
+just install
 ```
 
 4. Install pre-commit to run linters/formatters at commit time:

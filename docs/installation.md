@@ -2,25 +2,28 @@
 
 ## Prerequisites
 
-- **Python** ≥ 3.11
-- **[uv](https://docs.astral.sh/uv/)** for dependency management
-- **[FFmpeg](https://ffmpeg.org/)** on your `PATH` (required to decode audio/video inputs such as mp3, wav, m4a, flac, mp4, mkv into normalized WAV)
-- **[just](https://github.com/casey/just)** (optional; used for local/CI recipes)
+- **[just](https://github.com/casey/just)** (recommended bootstrap)
+- **Python 3.11 or 3.12** — uv will download one if needed
+- **[uv](https://docs.astral.sh/uv/)** and **[FFmpeg](https://ffmpeg.org/)** — installed for you by `just install` if they are missing
 - A **HuggingFace access token** if you use speaker diarization
 
-Optional: a CUDA-capable GPU and matching PyTorch/CUDA stack for faster inference.
+Optional: a CUDA-capable GPU and a matching PyTorch/CUDA stack for faster inference.
 
 ## Install the project
 
 ```bash
 git clone https://github.com/picommcapp/whisper-subtitler.git
 cd whisper-subtitler
-uv sync --all-groups
+just install
 ```
 
-Or with Just:
+`just install` removes caches and `.venv`, installs uv and FFmpeg when they are not on `PATH`, then runs `uv sync --all-groups`.
+
+If uv and FFmpeg are already installed:
 
 ```bash
+uv sync --all-groups
+# or
 just sync
 ```
 
@@ -35,7 +38,7 @@ Edit `.env`:
 1. Set `HUGGINGFACE_TOKEN` to a token from [HuggingFace settings](https://hf.co/settings/tokens).
 2. Accept the user conditions for [pyannote/speaker-diarization-3.1](https://hf.co/pyannote/speaker-diarization-3.1) (and any gated model cards it requires).
 
-If you only need transcription, you can skip the token and always pass `--no-diarization`.
+If you only need transcription, skip the token and pass `--no-diarization`.
 
 ## Verify
 

@@ -2,17 +2,16 @@
 
 ## Requirements
 
-- Python ≥ 3.11
-- [uv](https://docs.astral.sh/uv/)
+- Python 3.11 or 3.12 (uv will download one if needed)
 - [just](https://github.com/casey/just)
-- FFmpeg (for runtime audio extraction)
+- [uv](https://docs.astral.sh/uv/) and FFmpeg (`just install` will install them if missing)
 
 There is no pip requirements file or Makefile. Dependencies live in `pyproject.toml` / `uv.lock`; recipes live in the `Justfile`.
 
 ## Setup
 
 ```bash
-just sync          # uv sync --all-groups
+just install                 # clean + uv + FFmpeg + uv sync --all-groups
 uv run pre-commit install
 ```
 
@@ -46,6 +45,9 @@ whisper-subtitler = whisper_subtitler.modules.cli:main
 
 | Recipe | Purpose |
 |--------|---------|
+| `just install` | Clean, install uv and FFmpeg, then `uv sync --all-groups` |
+| `just install-uv` | Install uv if it is not on `PATH` |
+| `just install-ffmpeg` | Install FFmpeg if it is not on `PATH` |
 | `just sync` | Install all dependency groups |
 | `just lock` | Refresh the lockfile |
 | `just test` | Run pytest |
@@ -55,7 +57,7 @@ whisper-subtitler = whisper_subtitler.modules.cli:main
 | `just check` | lint + typecheck + tests |
 | `just run *args` | `uv run whisper-subtitler …` |
 | `just docs` | `mkdocs build -s` |
-| `just clean` | Remove caches/build artifacts |
+| `just clean` | Remove caches, build artifacts, and `.venv` |
 
 ## Tests and tox
 

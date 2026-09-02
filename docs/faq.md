@@ -9,7 +9,7 @@ Diarization needs a HuggingFace token and acceptance of the [pyannote/speaker-di
 
 ## FFmpeg not found
 
-Audio and video inputs are converted with FFmpeg (for example MP3 → WAV). Install it system-wide and ensure `ffmpeg` is on your `PATH`.
+Audio and video inputs are converted with FFmpeg (for example MP3 → WAV). Run `just install-ffmpeg`, or install FFmpeg yourself and ensure `ffmpeg` is on your `PATH`.
 
 ## Does MP3 (or other audio) work?
 
