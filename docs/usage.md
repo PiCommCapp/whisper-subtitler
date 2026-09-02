@@ -20,6 +20,17 @@ uv run whisper-subtitler transcribe path/to/video.mp4 -o path/to/output
 
 When the input is a directory, outputs default to that directory. Non-media files and subdirectories are skipped. If one file fails, processing continues with the rest and the CLI exits non-zero.
 
+## Desktop GUI
+
+A two-tab window (Operation / Options) drives the same pipeline. PySide6 is an optional extra so CLI installs stay lean:
+
+```bash
+just sync-gui       # once: add PySide6 to the venv
+just gui            # run
+```
+
+Leave the HuggingFace token field empty to skip diarization. The Options grid lists every `.env.sample` key for the current run only; it does not write `.env`. During transcription the progress bar shows audio time (`Transcription 12:34 / 45:00`) and a one-second elapsed clock so long jobs look alive.
+
 ## Progress feedback
 
 On an interactive terminal you will see:

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import sys
 import time
+from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import Any
 
@@ -100,8 +101,7 @@ def resolve_compute_type(config, device: str) -> str:
     chosen = _first_supported()
     if supported is not None and preferred[0] not in supported and chosen != preferred[0]:
         get_logger("transcribe").warning(
-            f"Default {preferred[0]} is not supported on {device}; using {chosen} "
-            f"(supported: {sorted(supported)})"
+            f"Default {preferred[0]} is not supported on {device}; using {chosen} (supported: {sorted(supported)})"
         )
     return chosen
 
@@ -116,6 +116,50 @@ def should_log_progress(config: Any) -> bool:
     if getattr(config, "verbose", False):
         return True
     return sys.stderr.isatty()
+
+
+def format_hms(seconds: float) -> str:
+    """Format a duration as M:SS, or H:MM:SS when it reaches one hour."""
+    total = max(0, int(seconds))
+    hours, remainder = divmod(total, 3600)
+    minutes, secs = divmod(remainder, 60)
+    if hours:
+        return f"{hours}:{minutes:02d}:{secs:02d}"
+    return f"{minutes}:{secs:02d}"
+
+
+def collect_segments(
+    segments_gen: Iterable[Any],
+    info: Any,
+    on_progress: Callable[[float, float], None] | None,
+) -> list[Any]:
+    """Consume the faster-whisper generator, optionally reporting audio-time progress.
+
+    ``on_progress(current_seconds, total_seconds)`` uses original ``info.duration``.
+    Emits 0 immediately, then throttles (0.25s or 1% of duration), and always
+    emits the last segment. Skips intra-callbacks when duration is missing.
+    """
+    total = float(getattr(info, "duration", 0) or 0)
+    if on_progress is None or total <= 0:
+        return list(segments_gen)
+
+    on_progress(0.0, total)
+    collected: list[Any] = []
+    last_emit = time.perf_counter()
+    last_frac = 0.0
+    for segment in segments_gen:
+        collected.append(segment)
+        current = min(float(getattr(segment, "end", 0) or 0), total)
+        frac = current / total
+        now = time.perf_counter()
+        if frac - last_frac >= 0.01 or (now - last_emit) >= 0.25:
+            on_progress(current, total)
+            last_emit = now
+            last_frac = frac
+    if collected:
+        final = min(float(getattr(collected[-1], "end", 0) or 0), total)
+        on_progress(final, total)
+    return collected
 
 
 class Transcriber:
@@ -174,9 +218,7 @@ class Transcriber:
 
     def _fallback_to_cpu_after_oom(self) -> None:
         """Drop the CUDA model and reload on CPU after an out-of-memory error."""
-        self.logger.warning(
-            f"CUDA out of memory with compute_type={self.compute_type}; falling back to CPU (int8)"
-        )
+        self.logger.warning(f"CUDA out of memory with compute_type={self.compute_type}; falling back to CPU (int8)")
         self.model = None
         self.device = "cpu"
         self.compute_type = "int8"
@@ -184,7 +226,7 @@ class Transcriber:
         try:
             torch.cuda.empty_cache()
         except Exception:
-            pass
+            self.logger.debug("torch.cuda.empty_cache() failed", exc_info=True)
 
     def load_model(self) -> WhisperModel:
         """Load the faster-whisper model.
@@ -229,12 +271,20 @@ class Transcriber:
             "language": getattr(info, "language", self.language),
         }
 
-    def transcribe(self, audio_path: str, reference_text: str | None = None) -> dict[str, Any]:
+    def transcribe(
+        self,
+        audio_path: str,
+        reference_text: str | None = None,
+        *,
+        on_progress: Callable[[float, float], None] | None = None,
+    ) -> dict[str, Any]:
         """Transcribe the given audio file.
 
         Args:
             audio_path: Path to the audio file
             reference_text: Unused; kept for call-site compatibility
+            on_progress: Optional ``(current_seconds, total_seconds)`` callback
+                while segments are produced. CLI leaves this unset.
 
         Returns:
             Dictionary containing transcription results in the legacy-compatible shape
@@ -252,7 +302,7 @@ class Transcriber:
             options["log_progress"] = should_log_progress(self.config)
             self.logger.debug(f"Transcription options: {options}")
             segments_gen, info = model.transcribe(str(audio_path), **options)
-            segments = list(segments_gen)
+            segments = collect_segments(segments_gen, info, on_progress)
             result = self._segments_to_result(segments, info)
             self.logger.info(
                 f"Detected language '{result.get('language')}' "
@@ -264,6 +314,6 @@ class Transcriber:
             if self.device == "cuda" and not self._cuda_oom_fell_back and _is_cuda_oom_error(e):
                 self.logger.error(f"Transcription error: {e!s}")
                 self._fallback_to_cpu_after_oom()
-                return self.transcribe(str(audio_path))
+                return self.transcribe(str(audio_path), on_progress=on_progress)
             self.logger.error(f"Transcription error: {e!s}")
             raise

@@ -242,3 +242,23 @@ class TestCLI:
         with pytest.raises(SystemExit) as exc_info:
             main()
         assert exc_info.value.code == 2
+
+    def test_gui_command_invokes_run(self, monkeypatch):
+        from whisper_subtitler.modules.cli import main
+
+        monkeypatch.setattr(sys, "argv", ["whisper-subtitler", "gui"])
+        with patch("whisper_subtitler.modules.cli._load_gui_run", return_value=lambda: 0) as load:
+            assert main() == 0
+            load.assert_called_once()
+
+    def test_gui_missing_extra_explains_install(self, monkeypatch, capsys):
+        from whisper_subtitler.modules.cli import main
+
+        monkeypatch.setattr(sys, "argv", ["whisper-subtitler", "gui"])
+        with patch(
+            "whisper_subtitler.modules.cli._load_gui_run",
+            side_effect=ImportError("No module named 'PySide6'"),
+        ):
+            assert main() == 1
+        err = capsys.readouterr().err
+        assert "uv sync --extra gui" in err

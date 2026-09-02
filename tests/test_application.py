@@ -126,6 +126,122 @@ class TestApplication:
     @patch("whisper_subtitler.modules.application.OutputFormatter")
     @patch("whisper_subtitler.modules.application.Transcriber")
     @patch("whisper_subtitler.modules.application.AudioExtractor")
+    def test_process_emits_on_progress_when_callback_set(
+        self,
+        mock_audio_extractor,
+        mock_transcriber,
+        mock_output_formatter,
+        mock_config,
+        temp_output_dir,
+        sample_video_file,
+    ):
+        mock_config.input_file = str(sample_video_file)
+        mock_config.output_dir = str(temp_output_dir)
+        mock_config.skip_diarization = True
+        mock_transcriber.return_value.transcribe.return_value = {
+            "text": "hi",
+            "segments": [{"id": 0, "start": 0.0, "end": 1.0, "text": "hi", "speaker": None}],
+        }
+        mock_output_formatter.return_value.generate_outputs.return_value = {"json": temp_output_dir / "out.json"}
+
+        seen: list[tuple[str, float]] = []
+        app = Application(mock_config)
+        app.on_progress = lambda label, fraction: seen.append((label, fraction))
+        app.process()
+
+        labels = [item[0] for item in seen]
+        assert "Preparing audio" in labels
+        assert "Transcription" in labels
+        assert "Done" in labels
+        assert seen[-1][1] == 1.0
+        assert all(0.0 <= frac <= 1.0 for _, frac in seen)
+
+    @patch("whisper_subtitler.modules.application.OutputFormatter")
+    @patch("whisper_subtitler.modules.application.Transcriber")
+    @patch("whisper_subtitler.modules.application.AudioExtractor")
+    def test_process_maps_whisper_progress_into_skip_diarization_band(
+        self,
+        mock_audio_extractor,
+        mock_transcriber,
+        mock_output_formatter,
+        mock_config,
+        temp_output_dir,
+        sample_video_file,
+    ):
+        mock_config.input_file = str(sample_video_file)
+        mock_config.output_dir = str(temp_output_dir)
+        mock_config.skip_diarization = True
+
+        def fake_transcribe(path, reference_text=None, on_progress=None):
+            if on_progress is not None:
+                on_progress(0.0, 10.0)
+                on_progress(5.0, 10.0)
+                on_progress(10.0, 10.0)
+            return {
+                "text": "hi",
+                "segments": [{"id": 0, "start": 0.0, "end": 1.0, "text": "hi", "speaker": None}],
+            }
+
+        mock_transcriber.return_value.transcribe.side_effect = fake_transcribe
+        mock_output_formatter.return_value.generate_outputs.return_value = {"json": temp_output_dir / "out.json"}
+
+        seen: list[tuple[str, float]] = []
+        app = Application(mock_config)
+        app.on_progress = lambda label, fraction: seen.append((label, fraction))
+        app.process()
+
+        clock = [item for item in seen if " / " in item[0]]
+        assert clock[0] == ("Transcription 0:00 / 0:10", 0.15)
+        assert clock[1][0] == "Transcription 0:05 / 0:10"
+        assert clock[1][1] == pytest.approx(0.525)
+        assert clock[2] == ("Transcription 0:10 / 0:10", 0.90)
+        assert all(0.15 <= frac <= 0.90 for _, frac in clock)
+
+    @patch("whisper_subtitler.modules.application.OutputFormatter")
+    @patch("whisper_subtitler.modules.application.Diarizer")
+    @patch("whisper_subtitler.modules.application.Transcriber")
+    @patch("whisper_subtitler.modules.application.AudioExtractor")
+    def test_process_maps_whisper_progress_into_diarization_band(
+        self,
+        mock_audio_extractor,
+        mock_transcriber,
+        mock_diarizer,
+        mock_output_formatter,
+        mock_config,
+        temp_output_dir,
+        sample_video_file,
+    ):
+        mock_config.input_file = str(sample_video_file)
+        mock_config.output_dir = str(temp_output_dir)
+        mock_config.skip_diarization = False
+
+        def fake_transcribe(path, reference_text=None, on_progress=None):
+            if on_progress is not None:
+                on_progress(10.0, 10.0)
+            return {
+                "text": "hi",
+                "segments": [{"id": 0, "start": 0.0, "end": 1.0, "text": "hi", "speaker": None}],
+            }
+
+        mock_transcriber.return_value.transcribe.side_effect = fake_transcribe
+        mock_diarizer.return_value.diarize.return_value = []
+        mock_diarizer.return_value.assign_speakers_to_segments.side_effect = (
+            lambda transcription, _speakers: transcription
+        )
+        mock_output_formatter.return_value.generate_outputs.return_value = {"json": temp_output_dir / "out.json"}
+
+        seen: list[tuple[str, float]] = []
+        app = Application(mock_config)
+        app.on_progress = lambda label, fraction: seen.append((label, fraction))
+        app.process()
+
+        clock = [item for item in seen if item[0] == "Transcription 0:10 / 0:10"]
+        assert clock
+        assert clock[0][1] == pytest.approx(0.70)
+
+    @patch("whisper_subtitler.modules.application.OutputFormatter")
+    @patch("whisper_subtitler.modules.application.Transcriber")
+    @patch("whisper_subtitler.modules.application.AudioExtractor")
     def test_process_extracts_mp3_to_temp_wav(
         self,
         mock_audio_extractor,

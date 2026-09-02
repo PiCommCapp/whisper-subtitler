@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import sys
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -22,6 +22,7 @@ from .diarisation import Diarizer
 from .logger import setup_logging
 from .output import OutputFormatter
 from .transcribe import Transcriber
+from .transcribe.transcriber import format_hms
 
 MEDIA_EXTENSIONS = frozenset({
     ".mp3",
@@ -37,6 +38,13 @@ MEDIA_EXTENSIONS = frozenset({
     ".mov",
     ".avi",
 })
+
+PROGRESS_PREPARE = 0.05
+PROGRESS_TRANSCRIBE_START = 0.15
+PROGRESS_TRANSCRIBE_END_WITH_DIARIZATION = 0.70
+PROGRESS_TRANSCRIBE_END_SKIP_DIARIZATION = 0.90
+PROGRESS_DIARIZATION_DONE = 0.90
+PROGRESS_DONE = 1.00
 
 
 def resolve_input_files(path: Path) -> list[Path]:
@@ -97,6 +105,7 @@ class Application:
             config: Application configuration
         """
         self.config = config or Config()
+        self.on_progress: Callable[[str, float], None] | None = None
 
         # Configure logging
         self.logger = setup_logging(self.config)
@@ -106,6 +115,12 @@ class Application:
         self.transcriber = None
         self.diarizer = None
         self.output_formatter = None
+
+    def _emit_progress(self, label: str, fraction: float) -> None:
+        """Notify GUI (or other front-ends). No-op when on_progress is unset."""
+        if self.on_progress is None:
+            return
+        self.on_progress(label, max(0.0, min(1.0, fraction)))
 
     def initialize(self):
         """Initialize all components."""
@@ -120,11 +135,13 @@ class Application:
 
         self.logger.debug("All components initialized")
 
-    def process_file(self, input_file: str | Path) -> dict[str, Any]:
+    def process_file(self, input_file: str | Path, file_index: int = 0, file_count: int = 1) -> dict[str, Any]:
         """Process a single media file through the full pipeline.
 
         Args:
             input_file: Path to the input media file
+            file_index: Zero-based index when processing a batch
+            file_count: Total files in the batch (for overall progress)
 
         Returns:
             Dictionary of output paths by format
@@ -154,20 +171,44 @@ class Application:
         temp_dir.mkdir(parents=True, exist_ok=True)
         audio_file = temp_dir / f"{base_name}.wav"
 
+        def prog(label: str, stage: float) -> None:
+            self._emit_progress(label, (file_index + stage) / max(file_count, 1))
+
+        transcribe_end = (
+            PROGRESS_TRANSCRIBE_END_SKIP_DIARIZATION
+            if self.config.skip_diarization
+            else PROGRESS_TRANSCRIBE_END_WITH_DIARIZATION
+        )
+
+        def on_whisper_progress(current: float, total: float) -> None:
+            intra = current / total if total > 0 else 0.0
+            stage = PROGRESS_TRANSCRIBE_START + intra * (transcribe_end - PROGRESS_TRANSCRIBE_START)
+            prog(f"Transcription {format_hms(current)} / {format_hms(total)}", stage)
+
         try:
+            prog("Preparing audio", PROGRESS_PREPARE)
             with timed_stage(self.logger, "Preparing audio"):
                 self.logger.info(f"Preparing audio at: {audio_file}")
                 self.audio_extractor.extract_audio(input_file=str(input_path), output_file=str(audio_file))
 
+            prog("Transcription", PROGRESS_TRANSCRIBE_START)
             with timed_stage(self.logger, "Transcription"):
                 self.logger.debug(f"Using model size: {self.config.model_size}")
-                transcription = self.transcriber.transcribe(str(audio_file))
+                if self.on_progress is not None:
+                    transcription = self.transcriber.transcribe(
+                        str(audio_file),
+                        on_progress=on_whisper_progress,
+                    )
+                else:
+                    transcription = self.transcriber.transcribe(str(audio_file))
 
             if self.config.skip_diarization:
                 self.logger.info("Skipping speaker diarization as requested")
                 for segment in transcription["segments"]:
                     segment["speaker"] = "Speaker"
+                prog("Diarization", PROGRESS_DIARIZATION_DONE)
             else:
+                prog("Transcription", transcribe_end)
                 with timed_stage(self.logger, "Diarization"):
                     self.logger.info("Initializing speaker diarization pipeline")
                     self.diarizer.initialize_pipeline()
@@ -180,10 +221,12 @@ class Application:
                     self.logger.debug(f"Transcription has {len(transcription['segments'])} segments")
                     self.logger.info("Assigning speakers to transcription segments")
                     transcription = self.diarizer.assign_speakers_to_segments(transcription, speaker_segments)
+                prog("Diarization", PROGRESS_DIARIZATION_DONE)
 
             with timed_stage(self.logger, "Outputs"):
                 output_files = self.output_formatter.generate_outputs(transcription, base_name)
 
+            prog("Done", PROGRESS_DONE)
             self.logger.info(f"Processing complete for {input_path}")
             return output_files
         finally:
@@ -230,11 +273,12 @@ class Application:
         else:
             file_iter = files
 
-        for file_path in file_iter:
+        file_count = len(files)
+        for file_index, file_path in enumerate(file_iter):
             key = str(file_path)
             try:
                 self.logger.info(f"Processing {file_path}")
-                results[key] = self.process_file(file_path)
+                results[key] = self.process_file(file_path, file_index=file_index, file_count=file_count)
             except Exception as e:
                 self.logger.error(f"Processing failed for {file_path}: {e!s}")
                 failures[key] = str(e)

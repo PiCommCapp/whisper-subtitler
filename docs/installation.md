@@ -27,6 +27,14 @@ uv sync --all-groups
 just sync
 ```
 
+Desktop GUI (optional):
+
+```bash
+just install-gui    # fresh clone: uv + FFmpeg + GUI extra
+just sync-gui       # already installed: add PySide6 to the venv
+just gui            # run
+```
+
 ## Configure environment
 
 ```bash

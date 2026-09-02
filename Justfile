@@ -127,11 +127,18 @@ clean:
         **/*.egg-info \
         **/__pycache__
 
-# Clean, install uv + FFmpeg, then sync project dependencies
+# Clean, install uv + FFmpeg, then sync project dependencies (CLI; no GUI extra)
 install: clean install-uv install-ffmpeg sync
+
+# Same as install, plus the PySide6 GUI extra
+install-gui: clean install-uv install-ffmpeg sync-gui
 
 sync:
     uv sync --all-groups
+
+# CLI + dev groups + optional GUI extra (PySide6)
+sync-gui:
+    uv sync --all-groups --extra gui
 
 lock:
     uv lock
@@ -154,6 +161,10 @@ check: lint typecheck test
 
 run *args:
     uv run whisper-subtitler {{args}}
+
+# Open the desktop GUI (pulls the gui extra if it is not already in the venv)
+gui:
+    uv run --extra gui whisper-subtitler gui
 
 docs:
     uv run mkdocs build -s
