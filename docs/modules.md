@@ -18,6 +18,12 @@ API reference for the installable `whisper_subtitler` package (generated with mk
 
 ::: whisper_subtitler.modules.cli
 
+## GUI (optional `gui` extra)
+
+::: whisper_subtitler.modules.gui.schema
+
+::: whisper_subtitler.modules.gui.run_config
+
 ## Transcription
 
 ::: whisper_subtitler.modules.transcribe.transcriber

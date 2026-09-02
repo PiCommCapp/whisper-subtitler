@@ -25,6 +25,7 @@ whisper_subtitler/
     application.py
     cli.py
     config.py
+    gui/          # optional extra: pyside6
     audio/
     diarisation/
     output/
@@ -46,9 +47,11 @@ whisper-subtitler = whisper_subtitler.modules.cli:main
 | Recipe | Purpose |
 |--------|---------|
 | `just install` | Clean, install uv and FFmpeg, then `uv sync --all-groups` |
+| `just install-gui` | Same as `just install`, plus the PySide6 GUI extra |
 | `just install-uv` | Install uv if it is not on `PATH` |
 | `just install-ffmpeg` | Install FFmpeg if it is not on `PATH` |
 | `just sync` | Install all dependency groups |
+| `just sync-gui` | `uv sync --all-groups --extra gui` |
 | `just lock` | Refresh the lockfile |
 | `just test` | Run pytest |
 | `just lint` | Ruff check + format check |
@@ -56,6 +59,7 @@ whisper-subtitler = whisper_subtitler.modules.cli:main
 | `just typecheck` | basedpyright |
 | `just check` | lint + typecheck + tests |
 | `just run *args` | `uv run whisper-subtitler …` |
+| `just gui` | Open the desktop GUI |
 | `just docs` | `mkdocs build -s` |
 | `just clean` | Remove caches, build artifacts, and `.venv` |
 

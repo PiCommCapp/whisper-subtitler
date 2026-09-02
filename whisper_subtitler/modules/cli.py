@@ -18,6 +18,26 @@ from .logger import setup_logging
 logger = logging.getLogger(__name__)
 
 ALL_OUTPUT_FORMATS = ["json", "txt", "srt", "vtt", "ttml"]
+MISSING_GUI_EXTRA = (
+    "The desktop GUI requires PySide6. Install it with:\n  uv sync --extra gui\nThen run: whisper-subtitler gui"
+)
+
+
+def _load_gui_run():
+    """Import the GUI entrypoint (lazy so CLI works without PySide6)."""
+    from .gui.app import run as run_gui
+
+    return run_gui
+
+
+def _run_gui() -> int:
+    """Launch the desktop GUI, or explain how to install the extra."""
+    try:
+        run_gui = _load_gui_run()
+    except ImportError:
+        print(MISSING_GUI_EXTRA, file=sys.stderr)
+        return 1
+    return run_gui()
 
 
 def main():
@@ -152,6 +172,8 @@ def main():
     )
     transcribe_parser.add_argument("--log-file", dest="log_file", type=str, help="Path to log file")
 
+    subparsers.add_parser("gui", help="Open the desktop GUI")
+
     # Version command
     subparsers.add_parser("version", help="Show version information")
 
@@ -164,6 +186,9 @@ def main():
 
         print(f"whisper-subtitler version {VERSION}")
         return 0
+
+    if args.command == "gui":
+        return _run_gui()
 
     # Handle transcribe command
     if args.command == "transcribe":

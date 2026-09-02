@@ -62,6 +62,8 @@ just run transcribe path/to/video.mp4 --device cpu
 
 CLI flags win over `.env`. Full reference: [Usage](docs/usage.md). Troubleshooting: [FAQ](docs/faq.md).
 
+A no-frills desktop GUI is available via `just install-gui` (or `just sync-gui` if the project is already installed), then `just gui`.
+
 ## Configuration
 
 Settings come from CLI flags, a `.env` file, or `--config`. Copy `.env.sample` and edit; the keys that matter first are:
@@ -88,12 +90,15 @@ just docs
 | Recipe | Purpose |
 |---|---|
 | `just install` | Clean, install uv and FFmpeg, sync dependencies |
+| `just install-gui` | Same as `just install`, plus the GUI extra |
 | `just install-uv` | Install uv if missing |
 | `just install-ffmpeg` | Install FFmpeg if missing |
 | `just sync` | `uv sync --all-groups` |
+| `just sync-gui` | `uv sync --all-groups --extra gui` |
 | `just clean` | Caches, build artifacts, `.venv` |
 | `just check` | lint + typecheck + tests |
 | `just run *args` | `uv run whisper-subtitler …` |
+| `just gui` | Open the desktop GUI |
 
 See [Development](docs/development.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 

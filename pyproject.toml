@@ -45,6 +45,11 @@ Documentation = "https://picommcapp.github.io/whisper-subtitler/"
 [project.scripts]
 whisper-subtitler = "whisper_subtitler.modules.cli:main"
 
+[project.optional-dependencies]
+gui = [
+    "pyside6>=6.11.2",
+]
+
 [dependency-groups]
 dev = [
     "pytest>=7.2.0",
@@ -143,7 +148,8 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["B007", "B008", "E722", "F841", "S101", "S105", "S314", "TRY003"]
+"tests/*" = ["B007", "B008", "E722", "F841", "S101", "S105", "S106", "S314", "TRY003"]
+"tests/test_gui.py" = ["E402"]
 
 [tool.ruff.format]
 preview = true

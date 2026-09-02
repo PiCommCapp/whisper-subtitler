@@ -8,6 +8,8 @@ from unittest.mock import MagicMock, patch
 
 from whisper_subtitler.modules.transcribe.transcriber import (
     Transcriber,
+    collect_segments,
+    format_hms,
     resolve_compute_type,
     resolve_device,
     resolve_model_name,
@@ -26,7 +28,10 @@ class TestResolveHelpers:
 
     def test_resolve_compute_type_defaults(self, mock_config):
         mock_config.compute_type = None
-        with patch("ctranslate2.get_supported_compute_types", side_effect=lambda d: {"int8", "float32"} if d == "cpu" else {"float16", "float32"}):
+        with patch(
+            "ctranslate2.get_supported_compute_types",
+            side_effect=lambda d: {"int8", "float32"} if d == "cpu" else {"float16", "float32"},
+        ):
             assert resolve_compute_type(mock_config, "cpu") == "int8"
             assert resolve_compute_type(mock_config, "cuda") == "float16"
         mock_config.compute_type = "int8_float16"
@@ -117,9 +122,7 @@ class TestTranscriber:
         assert "log_progress" in call_kwargs[1]
 
     @patch("whisper_subtitler.modules.transcribe.transcriber.WhisperModel")
-    def test_transcribe_passes_anti_hallucination_options(
-        self, mock_whisper_model_cls, mock_config, sample_audio_file
-    ):
+    def test_transcribe_passes_anti_hallucination_options(self, mock_whisper_model_cls, mock_config, sample_audio_file):
         mock_config.device = "cpu"
         mock_config.compute_type = None
         mock_config.model_size = "tiny"
@@ -161,9 +164,7 @@ class TestTranscriber:
         }
 
     @patch("whisper_subtitler.modules.transcribe.transcriber.WhisperModel")
-    def test_transcribe_omits_vad_parameters_when_unset(
-        self, mock_whisper_model_cls, mock_config, sample_audio_file
-    ):
+    def test_transcribe_omits_vad_parameters_when_unset(self, mock_whisper_model_cls, mock_config, sample_audio_file):
         mock_config.device = "cpu"
         mock_config.compute_type = None
         mock_config.model_size = "tiny"
@@ -442,3 +443,93 @@ class TestTranscriber:
             raise AssertionError("Expected FileNotFoundError")
         except FileNotFoundError:
             pass
+
+
+class TestFormatHms:
+    def test_under_one_hour(self):
+        assert format_hms(0) == "0:00"
+        assert format_hms(65) == "1:05"
+        assert format_hms(3599) == "59:59"
+
+    def test_one_hour_or_more(self):
+        assert format_hms(3600) == "1:00:00"
+        assert format_hms(3661) == "1:01:01"
+
+
+class TestCollectSegments:
+    def test_no_callback_returns_list(self):
+        segs = [SimpleNamespace(end=1.0), SimpleNamespace(end=2.0)]
+        info = SimpleNamespace(duration=10.0)
+        assert collect_segments(iter(segs), info, None) == segs
+
+    def test_zero_duration_skips_callbacks(self):
+        seen: list[tuple[float, float]] = []
+        segs = [SimpleNamespace(end=1.0)]
+        result = collect_segments(iter(segs), SimpleNamespace(duration=0), lambda c, t: seen.append((c, t)))
+        assert result == segs
+        assert seen == []
+
+    def test_missing_duration_skips_callbacks(self):
+        seen: list[tuple[float, float]] = []
+        segs = [SimpleNamespace(end=1.0)]
+        info = SimpleNamespace(language="en")
+        collect_segments(iter(segs), info, lambda c, t: seen.append((c, t)))
+        assert seen == []
+
+    def test_emits_zero_then_increasing_ends(self):
+        seen: list[tuple[float, float]] = []
+        segs = [
+            SimpleNamespace(end=2.0),
+            SimpleNamespace(end=5.0),
+            SimpleNamespace(end=10.0),
+        ]
+        collect_segments(iter(segs), SimpleNamespace(duration=10.0), lambda c, t: seen.append((c, t)))
+        assert seen[0] == (0.0, 10.0)
+        assert seen[-1] == (10.0, 10.0)
+        currents = [current for current, _ in seen]
+        assert currents == sorted(currents)
+        assert 2.0 in currents
+        assert 5.0 in currents
+
+    def test_clamps_end_to_duration(self):
+        seen: list[tuple[float, float]] = []
+        collect_segments(
+            iter([SimpleNamespace(end=12.0)]),
+            SimpleNamespace(duration=10.0),
+            lambda c, t: seen.append((c, t)),
+        )
+        assert seen[-1] == (10.0, 10.0)
+
+
+class TestTranscribeProgress:
+    @patch("whisper_subtitler.modules.transcribe.transcriber.WhisperModel")
+    def test_transcribe_reports_progress_when_callback_set(
+        self, mock_whisper_model_cls, mock_config, sample_audio_file
+    ):
+        mock_config.beam_size = 5
+        mock_config.best_of = 5
+        mock_config.temperature = 0.0
+        mock_config.initial_prompt = None
+        mock_config.device = "cpu"
+        mock_config.compute_type = None
+        mock_config.model_size = "tiny"
+        mock_config.language = "en"
+
+        segments = [
+            SimpleNamespace(id=0, start=0.0, end=2.0, text=" a"),
+            SimpleNamespace(id=1, start=2.0, end=4.0, text=" b"),
+        ]
+        info = SimpleNamespace(language="en", language_probability=0.99, duration=4.0)
+        mock_model = MagicMock()
+        mock_model.transcribe.return_value = (iter(segments), info)
+        mock_whisper_model_cls.return_value = mock_model
+
+        seen: list[tuple[float, float]] = []
+        result = Transcriber(mock_config).transcribe(
+            str(sample_audio_file),
+            on_progress=lambda current, total: seen.append((current, total)),
+        )
+
+        assert result["text"] == "a b"
+        assert seen[0] == (0.0, 4.0)
+        assert seen[-1] == (4.0, 4.0)
